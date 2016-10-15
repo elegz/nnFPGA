@@ -1,2 +1,3 @@
 # nnFPGA
-RTL for neural nets
+RTL for neural nets: CNN, deep learning. Modules:
+- convolution
