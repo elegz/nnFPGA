@@ -7,29 +7,30 @@ module win_pad import functions_pkg::clog2; # (
    parameter FRAME_H_MAX = 224,
    parameter FRAME_W_MAX = 224,
    parameter DIN_WIDTH   = 8,
-   parameter WIN_SIZE    = 3
+   parameter WIN_SIZE    = 3,
+   parameter CH_NUM      = 3
 ) (
-   input    wire                                                        clk,
-   input    wire                                                        reset_n,
-   input    wire                              [clog2(FRAME_H_MAX-1):0]  frame_h,
-   input    wire                              [clog2(FRAME_W_MAX-1):0]  frame_w,
-   input    wire                                                        frame_start,
-   input    wire                                                        din_vld,
-   input    wire                [WIN_SIZE-1:0][         DIN_WIDTH-1:0]  din,
-   output   wire                                                        win_vld,
-   output   reg   [WIN_SIZE-1:0][WIN_SIZE-1:0][         DIN_WIDTH-1:0]  window
+   input    wire                                                                    clk,
+   input    wire                                                                    reset_n,
+   input    wire                                          [clog2(FRAME_H_MAX-1):0]  frame_h,
+   input    wire                                          [clog2(FRAME_W_MAX-1):0]  frame_w,
+   input    wire                                                                    frame_start,
+   input    wire                                                                    din_vld,
+   input    wire                [WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  din,
+   output   wire                                                                    win_vld,
+   output   reg   [WIN_SIZE-1:0][WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  window
 );
    localparam WIN_R   = WIN_SIZE / 2;
    localparam WIN_DLY = WIN_R + 1;
 
-   reg                                                      frame_valid;
-   reg                            [clog2(FRAME_H_MAX-1):0]  row_pointer;
-   reg                            [clog2(FRAME_W_MAX-1):0]  column_pointer;
-   reg                            [           WIN_DLY-1:0]  frame_start_z;
-   reg                            [           WIN_DLY-1:0]  din_vld_z;
-   reg   [WIN_SIZE-1:0][WIN_R-1:0][         DIN_WIDTH-1:0]  win_buf;
-   reg                 [  WIN_R:1][        clog2(WIN_R):0]  top_pad_timer;
-   reg                 [  WIN_R:1][        clog2(WIN_R):0]  bot_pad_timer;
+   reg                                                       frame_valid;
+   reg                             [clog2(FRAME_H_MAX-1):0]  row_pointer;
+   reg                             [clog2(FRAME_W_MAX-1):0]  column_pointer;
+   reg                             [           WIN_DLY-1:0]  frame_start_z;
+   reg                             [           WIN_DLY-1:0]  din_vld_z;
+   reg   [WIN_SIZE-1:0][ WIN_R-1:0][         DIN_WIDTH-1:0]  win_buf;
+   reg                 [   WIN_R:1][        clog2(WIN_R):0]  top_pad_timer;
+   reg                 [   WIN_R:1][        clog2(WIN_R):0]  bot_pad_timer;
    
    assign win_vld = din_vld_z[WIN_DLY-1];
 
