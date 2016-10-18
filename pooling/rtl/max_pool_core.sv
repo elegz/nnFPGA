@@ -9,8 +9,7 @@
 `endif
 module max_pool_core # (
    parameter DATA_WIDTH       = 8,
-   parameter WIN_SIZE         = 3,
-   parameter STRIDE           = 2
+   parameter WIN_SIZE         = 3
 ) (
    input    wire                                                     clk,
    input    wire                                                     reset_n,
