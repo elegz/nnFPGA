@@ -6,6 +6,7 @@
 module win_pad import functions_pkg::clog2; # (
    parameter FRAME_H_MAX = 224,
    parameter FRAME_W_MAX = 224,
+   parameter STRIDE_MAX  = 4,
    parameter DIN_WIDTH   = 8,
    parameter WIN_SIZE    = 3,
    parameter CH_NUM      = 3
@@ -14,10 +15,11 @@ module win_pad import functions_pkg::clog2; # (
    input    wire                                                                    reset_n,
    input    wire                                          [clog2(FRAME_H_MAX-1):0]  frame_h,
    input    wire                                          [clog2(FRAME_W_MAX-1):0]  frame_w,
+   input    wire                                          [ clog2(STRIDE_MAX-1):0]  stride,
    input    wire                                                                    frame_start,
    input    wire                                                                    din_vld,
    input    wire                [WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  din,
-   output   wire                                                                    win_vld,
+   output   reg                                                                     win_vld,
    output   reg   [WIN_SIZE-1:0][WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  window
 );
    localparam WIN_R   = WIN_SIZE / 2;
@@ -26,13 +28,13 @@ module win_pad import functions_pkg::clog2; # (
    reg                                                       frame_valid;
    reg                             [clog2(FRAME_H_MAX-1):0]  row_pointer;
    reg                             [clog2(FRAME_W_MAX-1):0]  column_pointer;
+   reg                             [clog2(FRAME_H_MAX-1):0]  str_row_ptr;
+   reg                             [clog2(FRAME_W_MAX-1):0]  str_col_ptr;
    reg                             [           WIN_DLY-1:0]  frame_start_z;
    reg                             [           WIN_DLY-1:0]  din_vld_z;
    reg   [WIN_SIZE-1:0][ WIN_R-1:0][         DIN_WIDTH-1:0]  win_buf;
    reg                 [   WIN_R:1][        clog2(WIN_R):0]  top_pad_timer;
    reg                 [   WIN_R:1][        clog2(WIN_R):0]  bot_pad_timer;
-   
-   assign win_vld = din_vld_z[WIN_DLY-1];
 
    //delay lines for some input signals
    always_ff @(posedge clk or negedge reset_n) begin: input_sig_delay
@@ -46,10 +48,13 @@ module win_pad import functions_pkg::clog2; # (
 
    always_ff @(posedge clk or negedge reset_n) begin: window_logic
       if (~reset_n) begin
-         {window, win_buf, row_pointer, column_pointer, top_pad_timer, bot_pad_timer, frame_valid} <= '0;
+         {window, win_buf, frame_valid, win_vld}                  <= '0;
+         {row_pointer, column_pointer, str_row_ptr, str_col_ptr}  <= '0;
+         {top_pad_timer, bot_pad_timer}                           <= '0;
       end else if (frame_start) begin
-         {row_pointer, top_pad_timer, bot_pad_timer} <= '0;
-         frame_valid <= '1;
+         {row_pointer, str_row_ptr}       <= '0;
+         {top_pad_timer, bot_pad_timer}   <= '0;
+         frame_valid                      <= '1;
       end else begin
          //buffer to support continuous streaming
          if (din_vld) begin
@@ -61,12 +66,28 @@ module win_pad import functions_pkg::clog2; # (
          end
 
          if (din_vld_z[WIN_DLY-2] && frame_valid) begin
-            //output column & row
+            //output column & row + stride logic
             if (column_pointer == (frame_w - 1)) begin
                column_pointer <= '0;
                row_pointer++;
+               str_col_ptr    <= '0;
+               if (row_pointer == str_row_ptr) begin
+                  str_row_ptr += stride;
+               end
             end else begin
+               if (row_pointer == str_row_ptr) begin
+                  if (column_pointer == str_col_ptr) begin
+                     win_vld     <= 1'b1;
+                     str_col_ptr += stride;
+                  end else begin
+                     win_vld <= 1'b0;
+                  end
+               end else begin
+                  win_vld <= 1'b0;
+               end
                column_pointer++;
+            end else begin
+               win_vld <= 1'b0;
             end
 
             //top/bottom borders padding with timers
