@@ -45,8 +45,6 @@ package nnfpga_uvm_scoreboard_pkg;
          super.connect_phase(phase);
          sb_frm_mon_export.connect(sb_frm_mon_fifo.analysis_export);
          sb_gm_mon_export.connect(sb_gm_mon_fifo.analysis_export);
-         sb_gm_mdp_mon.connect(sb_gm_mdp_mon_fifo.analysis_export);
-         sb_mdp_stat_export.connect(sb_mdp_stat_fifo.analysis_export);
       endfunction: connect_phase
 
       virtual task run_phase(uvm_phase phase);
