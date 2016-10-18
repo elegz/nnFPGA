@@ -28,14 +28,26 @@ module conv3d import functions_pkg::clog2; # (
    output   wire                                      dout_vld,
    output   wire [CHANNELS_OUT-1:0][DOUT_WIDTH-1:0]   dout
 );
-   wire                                                                   frame_start_buf;
-   wire                                                                   din_vld_buf;
-   wire                   [CHANNELS_IN-1:0][WIN_SIZE-1:0][DIN_WIDTH-1:0]  din_buf;
-   wire                                                                   win_vld;
-   wire  [CHANNELS_IN-1:0][   WIN_SIZE-1:0][WIN_SIZE-1:0][DIN_WIDTH-1:0]  window;
-   wire                                                                   conv_dout_vld[CHANNELS_OUT];
+   wire                                                                frame_start_buf;
+   wire                                                                din_vld_buf;
+   wire                [WIN_SIZE-1:0][CHANNELS_IN-1:0][DIN_WIDTH-1:0]  din_buf;
+   wire                                                                win_vld;
+   wire  [WIN_SIZE-1:0][WIN_SIZE-1:0][CHANNELS_IN-1:0][DIN_WIDTH-1:0]  window;
+   wire                                                                conv_dout_vld[CHANNELS_OUT];
+
+   logic [CHANNELS_IN-1:0][WIN_SIZE-1:0][WIN_SIZE-1:0][DIN_WIDTH-1:0]  conv_din;
 
    assign dout_vld = conv_dout_vld[0];
+
+   always_comb begin: conv_din_forming
+      for (int i = 0; i < WIN_SIZE; i++) begin
+         for (int j = 0; j < WIN_SIZE; j++) begin
+            for (int k = 0; k < CHANNELS_IN; k++) begin
+               conv_din[k][i][j] = window[i][j][k];          
+            end
+         end
+      end
+   end: conv_din_forming
 
    row_buffer # (
       .FRAME_H_MAX      (FRAME_H_MAX),
@@ -91,7 +103,7 @@ module conv3d import functions_pkg::clog2; # (
             .reset_n,
             .kernel     (kernel[g]),
             .din_vld    (win_vld),
-            .din        (window),
+            .din        (conv_din),
             .dout_vld   (conv_dout_vld[g]),
             .dout       (dout[g])
          );
