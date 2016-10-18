@@ -72,7 +72,7 @@ module conv_kernel # (
 
          //kernel stage # 1...SUM_STAGE_NUM: dot_pro_sum calculation
          for (int j = 0, l = 0; j < sum_stage[1].DOT_PRO_SUMS_NUM; j++, l += 2) begin //kernel stage # 1
-            automatic bit k = (j == (sum_stage[1].DOT_PRO_SUMS_NUM - 1)) && (WIN_SQR % 2);
+            automatic bit k = (j == (sum_stage[1].DOT_PRO_SUMS_NUM - 1)) && (KERN_SIZE % 2);
             sum_stage[1].dot_pro_sums[j] <= k ? dot_pro[l] : dot_pro[l] + dot_pro[l+1];
          end
          
