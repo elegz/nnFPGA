@@ -12,7 +12,7 @@ package nnfpga_uvm_agent_pkg;
    //import nnfpga_uvm_if_lib::*;
    import nnfpga_uvm_pkg::*;
 
-   class nnfpga_agent extends uvm_agent;
+   class frame_agent extends uvm_agent;
       uvm_analysis_port # (frame_transaction) agnt_frm_mon_port;
       uvm_analysis_port # (frame_transaction) agnt_gm_mon_port;
 
@@ -21,7 +21,7 @@ package nnfpga_uvm_agent_pkg;
       frm_bus_monitor # (.TRANS_TYPE(frame_transaction), .DATA_WIDTH(DATA_WIDTH))   frm_mon;
       gm_monitor # (.FILE_NAME(GM_FILE))                                            gm_mon;
 
-      `uvm_component_utils(nnfpga_agent)
+      `uvm_component_utils(frame_agent)
 
       function new (string name, uvm_component parent);
          super.new(name, parent);
@@ -66,5 +66,5 @@ package nnfpga_uvm_agent_pkg;
             ->gm_mon.reset_monitor;
          end
       endtask: pre_reset_phase
-   endclass: nnfpga_agent
+   endclass: frame_agent
 endpackage: nnfpga_uvm_agent_pkg

@@ -16,7 +16,7 @@ package nnfpga_uvm_test_pkg;
    class nnfpga_uvm_test extends uvm_test;
       `uvm_component_utils(nnfpga_uvm_test)
 
-      nnfpga_uvm_env    nnfpga_env;
+      frame_env         env;
       uvm_table_printer printer;
       int               sim_status  = 0;
 
@@ -33,7 +33,7 @@ package nnfpga_uvm_test_pkg;
          void'(uvm_resource_db #(virtual tb_main_if)::read_by_name(.scope("ifs"), .name("main_vif"), .val(vif)));
          void'(uvm_resource_db #(int)::read_by_name(.scope("flags"), .name("sim_status"), .val(sim_status)));
 
-         nnfpga_env = nnfpga_uvm_env::type_id::create(.name("nnfpga_env"), .parent(this));
+         env = nnfpga_uvm_env::type_id::create(.name("env"), .parent(this));
 
          // Create a specific depth printer for printing the created topology
          printer = new();
@@ -57,8 +57,8 @@ package nnfpga_uvm_test_pkg;
             @(posedge vif.clk);
             vif.reset = '0;
             #(RESET_T/2);
-            if(nnfpga_env.nnfpga_sb) begin
-               ->nnfpga_env.nnfpga_sb.reset_scoreboard;
+            if(env.sb) begin
+               ->env.sb.reset_scoreboard;
             end
             #(RESET_T/2);
             vif.reset = '1;
@@ -84,11 +84,11 @@ package nnfpga_uvm_test_pkg;
 
             fork
                begin
-                  frm_seq.start(nnfpga_env.frm_agnt.sequencer);
+                  frm_seq.start(env.frm_agnt.sequencer);
                   frm_seq_end = '1;
                end
                begin
-                  gm_seq.start(nnfpga_env.frm_agnt.sequencer);
+                  gm_seq.start(env.frm_agnt.sequencer);
                   gm_seq_end = '1;
                end
             join_none
@@ -100,7 +100,7 @@ package nnfpga_uvm_test_pkg;
       endtask: main_phase
 
       virtual function void extract_phase(uvm_phase phase);
-         if (nnfpga_env.nnfpga_sb.sb_error) begin
+         if (env.sb.error) begin
             sim_status = 1;
          end
       endfunction: extract_phase
