@@ -19,7 +19,7 @@ package nnfpga_uvm_monitor_pkg;
       int   frame_width;
       int   frame_height;
 
-      uvm_analysis_port # (TRANS_TYPE) frm_bus_mon;
+      uvm_analysis_port # (TRANS_TYPE) out_port;
 
       protected virtual tb_main_if              tb_vif;
       protected virtual frm_if # (DATA_WIDTH)   vif;
@@ -56,7 +56,7 @@ package nnfpga_uvm_monitor_pkg;
                      end
                      trans_collected = TRANS_TYPE::type_id::create(.name("trans_collected"), .contxt(get_full_name()));
                      trans_collected.create_from_stream(word_queue);
-                     frm_bus_mon.write(trans_collected);
+                     out_port.write(trans_collected);
                      // $display("FRM trans_collected");
                      // trans_collected.print_hex();
                   end
@@ -78,7 +78,7 @@ package nnfpga_uvm_monitor_pkg;
    class gm_monitor # (type TRANS_TYPE = frame_transaction, parameter string FILE_NAME) extends uvm_monitor;
       `uvm_component_param_utils(gm_monitor #(TRANS_TYPE, FILE_NAME))
 
-      uvm_analysis_port # (TRANS_TYPE) gm_mon;
+      uvm_analysis_port # (TRANS_TYPE) out_port;
 
       event reset_monitor;
 
@@ -121,7 +121,7 @@ package nnfpga_uvm_monitor_pkg;
                   trans_generated.create_from_string(trans);
                   trans_generated.frame.width   = width;
                   trans_generated.frame.height  = height;
-                  gm_mon.write(trans_generated);
+                  out_port.write(trans_generated);
                   // $display("GM");
                   // $display(trans_generated);
                end
