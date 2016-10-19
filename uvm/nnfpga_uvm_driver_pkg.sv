@@ -9,7 +9,7 @@ package nnfpga_uvm_driver_pkg;
    import nnfpga_uvm_transaction_pkg::*;
    //import nnfpga_uvm_if_lib::*;
 
-   class frm_bus_driver # (type TRANS_TYPE = frame_transaction, DATA_WIDTH) extends uvm_driver # (TRANS_TYPE);
+   class frm_bus_driver # (type TRANS_TYPE = frame_transaction, parameter DATA_WIDTH) extends uvm_driver # (TRANS_TYPE);
       `uvm_component_param_utils(frm_bus_driver # (TRANS_TYPE, DATA_WIDTH))
 
       localparam WORD_SIZE = (DATA_WIDTH + 7) / 8;

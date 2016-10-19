@@ -13,8 +13,8 @@ package nnfpga_uvm_agent_pkg;
    import nnfpga_uvm_pkg::*;
 
    class frame_agent extends uvm_agent;
-      uvm_analysis_port # (frame_transaction) agnt_frm_mon_port;
-      uvm_analysis_port # (frame_transaction) agnt_gm_mon_port;
+      uvm_analysis_port # (frame_transaction) frm_mon_port;
+      uvm_analysis_port # (frame_transaction) gm_mon_port;
 
       uvm_sequencer # (.REQ(frame_transaction))                                     sequencer;
       frm_bus_driver  # (.TRANS_TYPE(frame_transaction), .DATA_WIDTH(DATA_WIDTH))   driver;
@@ -29,8 +29,8 @@ package nnfpga_uvm_agent_pkg;
 
       function void build_phase(uvm_phase phase);
          super.build_phase(phase);
-         agnt_frm_mon_port   = new(.name("agnt_frm_mon_port"), .parent(this));
-         agnt_gm_mon_port    = new(.name("agnt_gm_mon_port"), .parent(this));
+         frm_mon_port   = new(.name("frm_mon_port"), .parent(this));
+         gm_mon_port    = new(.name("gm_mon_port"), .parent(this));
 
          frm_mon              = frm_bus_monitor # (.TRANS_TYPE(frame_transaction), .DATA_WIDTH(DATA_WIDTH))::type_id::create("frm_mon", this);
          frm_mon.frame_width  = FRAME_WIDTH;
@@ -45,8 +45,8 @@ package nnfpga_uvm_agent_pkg;
 
       function void connect_phase(uvm_phase phase);
          super.connect_phase(phase);
-         frm_mon.out_port.connect(agnt_frm_mon_port);
-         gm_mon.out_port.connect(agnt_gm_mon_port);
+         frm_mon.out_port.connect(frm_mon_port);
+         gm_mon.out_port.connect(gm_mon_port);
 
          if(get_is_active() == UVM_ACTIVE) begin
             driver.seq_item_port.connect(sequencer.seq_item_export);

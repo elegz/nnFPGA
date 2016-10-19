@@ -74,7 +74,7 @@ package nnfpga_uvm_test_pkg;
 
          phase.raise_objection(.obj(this));
             frm_seq = file_sequence # (.REQ(frame_trans), .FILE_NAME(FRM_FILE))::type_id::create(.name("frm_seq")), .contxt(get_full_name()));
-            gm_seq  = file_sequence # (.REQ(simple_eth_trans), .FILE_NAME(MDP_FILE))::type_id::create(.name("gm_seq")), .contxt(get_full_name()));
+            gm_seq  = file_sequence # (.REQ(simple_eth_trans), .FILE_NAME(GM_FILE))::type_id::create(.name("gm_seq")), .contxt(get_full_name()));
 
             frm_seq.seq_id = 0;
             gm_seq.seq_id  = 1;

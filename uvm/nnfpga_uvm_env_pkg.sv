@@ -30,8 +30,8 @@ package nnfpga_uvm_env_pkg;
 
       function void connect_phase(uvm_phase phase);
          super.connect_phase(phase);
-         frm_agnt.agnt_frm_mon_port.connect(sb.frm_mon_export);
-         rx_agnt.agent_mdp_mon.connect(sb.gm_mon_export);
+         frm_agnt.frm_mon_port.connect(sb.frm_mon_export);
+         frm_agnt.gm_mon_port.connect(sb.gm_mon_export);
       endfunction: connect_phase
    endclass: frame_env
 endpackage: nnfpga_uvm_env_pkg
