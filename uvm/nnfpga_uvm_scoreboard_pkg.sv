@@ -88,10 +88,10 @@ package nnfpga_uvm_scoreboard_pkg;
       endtask: run_phase
 
       virtual function void frm_compare();
-         int      size0    = frm_trans.frame.size();
-         int      size1    = gm_trans.frame.size();
-         data_t   frm0     = frm_trans.frame;
-         data_t   frm1     = gm_trans.frame;
+         int      size0    = frm_trans.length;
+         int      size1    = gm_trans.length;
+         data_t   frm0     = frm_trans.frame.data;
+         data_t   frm1     = gm_trans.frame.data;
          if (size0 == size1) begin
             if (frm != frm) begin
                `uvm_error("Frame compare: data", "ERR: rdata of the received frame does not match to the expected data!");
