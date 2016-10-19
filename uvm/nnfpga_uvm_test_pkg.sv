@@ -55,13 +55,13 @@ package nnfpga_uvm_test_pkg;
          //reg_block.REG_BLOCK.reset("HARD");
          phase.raise_objection(this);
             @(posedge vif.clk);
-            vif.reset_n = '0;
+            vif.reset = '0;
             #(RESET_T/2);
             if(nnfpga_env.nnfpga_sb) begin
                ->nnfpga_env.nnfpga_sb.reset_scoreboard;
             end
             #(RESET_T/2);
-            vif.reset_n = '1;
+            vif.reset = '1;
          phase.drop_objection(this);
       endtask: reset_phase
 
