@@ -66,14 +66,14 @@ package nnfpga_uvm_test_pkg;
       endtask: reset_phase
 
       virtual task main_phase(uvm_phase phase);
-         file_frm_sequence # (.REQ(frame_trans), .FILE_NAME(FRM_FILE)) frm_seq;
-         file_frm_sequence # (.REQ(frame_trans), .FILE_NAME(GM_FILE))  gm_seq;
+         file_sequence # (.REQ(frame_trans), .FILE_NAME(FRM_FILE)) frm_seq;
+         file_sequence # (.REQ(frame_trans), .FILE_NAME(GM_FILE))  gm_seq;
          
          bit frm_seq_end;
          bit gm_seq_end;
 
          phase.raise_objection(.obj(this));
-            frm_seq = file_frm_sequence # (.REQ(frame_trans), .FILE_NAME(FRM_FILE))::type_id::create(.name("frm_seq")), .contxt(get_full_name()));
+            frm_seq = file_sequence # (.REQ(frame_trans), .FILE_NAME(FRM_FILE))::type_id::create(.name("frm_seq")), .contxt(get_full_name()));
             gm_seq  = file_sequence # (.REQ(simple_eth_trans), .FILE_NAME(MDP_FILE))::type_id::create(.name("gm_seq")), .contxt(get_full_name()));
 
             frm_seq.seq_id = 0;
