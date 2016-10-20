@@ -14,8 +14,10 @@ module conv3d_kernel # (
    input    wire                                                                 clk,
    input    wire                                                                 reset_n,
    input    wire signed [KERN_L-1:0][KERN_H-1:0][KERN_W-1:0][KERN_WIDTH-1:0]     kernel,
+   input    wire                                                                 fin_start,
    input    wire                                                                 din_vld,
    input    wire signed [KERN_L-1:0][KERN_H-1:0][KERN_W-1:0][ DIN_WIDTH-1:0]     din,
+   output   wire                                                                 fout_start,
    output   wire                                                                 dout_vld,
    output   wire signed                                     [DOUT_WIDTH-1:0]     dout
 );
@@ -28,9 +30,11 @@ module conv3d_kernel # (
    ) conv_kernel_inst (
       .clk,
       .reset_n,
-      .kernel     (kernel),
+      .kernel,
+      .fin_start,
       .din_vld,
-      .din        (din),
+      .din,
+      .fout_start,
       .dout_vld,
       .dout
    );   

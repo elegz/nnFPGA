@@ -16,22 +16,26 @@ module max_pool import functions_pkg::clog2; # (
 
    input    wire                                clk,
    input    wire                                reset_n,
-   input    wire                                frame_start,
+   input    wire                                fin_start,
    input    wire                                din_vld,
    input    wire [CH_NUM-1:0][DATA_WIDTH-1:0]   din,
+   output   wire                                fout_start,
    output   wire                                dout_vld,
    output   wire [CH_NUM-1:0][DATA_WIDTH-1:0]   dout
 );
    wire                                                                 frame_start_buf;
    wire                                                                 din_vld_buf;
    wire                   [WIN_SIZE-1:0][  CH_NUM-1:0][DATA_WIDTH-1:0]  din_buf;
+   wire                                                                 win_fout_start;
    wire                                                                 win_vld;
    wire  [   WIN_SIZE-1:0][WIN_SIZE-1:0][  CH_NUM-1:0][DATA_WIDTH-1:0]  window;
    wire                                                                 pool_dout_vld[CH_NUM];
+   wire                                                                 pool_fout_start[CH_NUM];
 
    logic                  [WIN_SIZE-1:0][WIN_SIZE-1:0][DATA_WIDTH-1:0]  pool_din[CH_NUM];
 
-   assign dout_vld = pool_dout_vld[0];
+   assign dout_vld   = pool_dout_vld[0];
+   assign fout_start = pool_fout_start[0];
 
    always_comb begin: pool_din_forming
       for (int i = 0; i < WIN_SIZE; i++) begin
@@ -54,7 +58,7 @@ module max_pool import functions_pkg::clog2; # (
       .reset_n,
       .frame_h,
       .frame_w,
-      .frame_start,
+      .frame_start      (fin_start),
       .din_vld,
       .din,
       .din_vld_buf,
@@ -75,9 +79,10 @@ module max_pool import functions_pkg::clog2; # (
       .frame_h,
       .frame_w,
       .stride,
-      .frame_start   (frame_start_buf),
+      .fin_start     (frame_start_buf),
       .din_vld       (din_vld_buf),
       .din           (din_buf),
+      .fout_start    (win_fout_start),
       .win_vld,
       .window
    );
@@ -91,7 +96,9 @@ module max_pool import functions_pkg::clog2; # (
          ) max_pool_core_inst (
             .clk,
             .reset_n,
+            .fin_start  (win_fout_start),
             .din_vld    (win_vld),
+            .fout_start (pool_fout_start[g])
             .din        (pool_din[g]),
             .dout_vld   (pool_dout_vld[g]),
             .dout       (dout[g])

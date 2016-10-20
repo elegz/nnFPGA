@@ -16,8 +16,10 @@ module conv_kernel # (
    input    wire                                            clk,
    input    wire                                            reset_n,
    input    wire signed [KERN_SIZE-1:0][KERN_WIDTH-1:0]     kernel,
+   input    wire                                            fin_start,
    input    wire                                            din_vld,
    input    wire signed [KERN_SIZE-1:0][ DIN_WIDTH-1:0]     din,
+   output   wire                                            fout_start,
    output   wire                                            dout_vld,
    output   wire signed                [DOUT_WIDTH-1:0]     dout
 );
@@ -29,7 +31,8 @@ module conv_kernel # (
    logic signed [KERN_SIZE-1:0][  DIN_WIDTH-1:0] din_format;
    wire  signed [KERN_SIZE-1:0][ KERN_WIDTH-1:0] dot_pro;
    wire  signed                [ KERN_WIDTH-1:0] dot_pro_sum;
-   reg                         [SUM_STAGE_NUM:0] dout_vld_z;
+   reg                         [SUM_STAGE_NUM:0] win_vld_z;
+   reg                         [SUM_STAGE_NUM:0] fout_start_z;
 
    `ifdef DSP_MULT_ON
       `USE_DSP
@@ -48,8 +51,9 @@ module conv_kernel # (
 
    assign dot_pro       = dot_pro_mat;
    assign dot_pro_sum   = sum_stage[SUM_STAGE_NUM].dot_pro_sums;
-   assign dout_vld      = dout_vld_z[SUM_STAGE_NUM];
+   assign dout_vld      = win_vld_z[SUM_STAGE_NUM];
    assign dout          = dot_pro_sum[KERN_WIDTH-1:KERN_WIDTH-DOUT_WIDTH];
+   assign fout_start    = fin_start_z[SUM_STAGE_NUM];
 
    //reformat din to signed N.(KERN_WIDTH-N) arithmetics
    always_comb begin: din_reformatting
@@ -60,7 +64,7 @@ module conv_kernel # (
 
    always_ff @(posedge clk or negedge reset_n) begin: kernel_pipeline
       if (!reset_n) begin
-         {dot_pro_mat, dout_vld_z} <= '0;
+         {dot_pro_mat, win_vld_z, fin_start_z} <= '0;
          for (int i = 1; i <= SUM_STAGE_NUM; i++) begin
             sum_stage[i].dot_pro_sums <= '0; 
          end
@@ -84,9 +88,12 @@ module conv_kernel # (
             end
          end
 
-         //dout_vld delay line
-         dout_vld_z[SUM_STAGE_NUM:1]   <= dout_vld_z[SUM_STAGE_NUM-1:0];
-         dout_vld_z[0]                 <= win_vld;
+         //delay lines
+         win_vld_z[SUM_STAGE_NUM:1]   <= win_vld_z[SUM_STAGE_NUM-1:0];
+         win_vld_z[0]                 <= win_vld;
+
+         fin_start_z[SUM_STAGE_NUM:1] <= fin_start_z[SUM_STAGE_NUM-1:0];
+         fin_start_z[0]               <= fin_start;
       end
    end: kernel_pipeline
 endmodule: conv_kernel

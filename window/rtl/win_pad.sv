@@ -16,9 +16,10 @@ module win_pad import functions_pkg::clog2; # (
    input    wire                                          [clog2(FRAME_H_MAX-1):0]  frame_h,
    input    wire                                          [clog2(FRAME_W_MAX-1):0]  frame_w,
    input    wire                                          [ clog2(STRIDE_MAX-1):0]  stride,
-   input    wire                                                                    frame_start,
+   input    wire                                                                    fin_start,
    input    wire                                                                    din_vld,
    input    wire                [WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  din,
+   output   wire                                                                    fout_start,
    output   reg                                                                     win_vld,
    output   reg   [WIN_SIZE-1:0][WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  window
 );
@@ -30,19 +31,24 @@ module win_pad import functions_pkg::clog2; # (
    reg                             [clog2(FRAME_W_MAX-1):0]  column_pointer;
    reg                             [clog2(FRAME_H_MAX-1):0]  str_row_ptr;
    reg                             [clog2(FRAME_W_MAX-1):0]  str_col_ptr;
-   reg                             [           WIN_DLY-1:0]  frame_start_z;
+   reg                             [           WIN_DLY-1:0]  fin_start_z;
    reg                             [           WIN_DLY-1:0]  din_vld_z;
    reg   [WIN_SIZE-1:0][ WIN_R-1:0][         DIN_WIDTH-1:0]  win_buf;
    reg                 [   WIN_R:1][        clog2(WIN_R):0]  top_pad_timer;
    reg                 [   WIN_R:1][        clog2(WIN_R):0]  bot_pad_timer;
 
+   assign fout_start = fin_start_z[WIN_DLY-1];
+
    //delay lines for some input signals
    always_ff @(posedge clk or negedge reset_n) begin: input_sig_delay
       if (~reset_n) begin
-         din_vld_z <= '0;
+         {din_vld_z, frame_start_z} <= '0;
       end else begin
-         din_vld_z[WIN_DLY-1:1]     <= din_vld_z[WIN_DLY-2:0];
-         din_vld_z[0]               <= din_vld;
+         din_vld_z[WIN_DLY-1:1]   <= din_vld_z[WIN_DLY-2:0];
+         din_vld_z[0]             <= din_vld;
+
+         fin_start_z[WIN_DLY-1:1] <= fin_start_z[WIN_DLY-2:0];
+         fin_start_z[0]           <= fin_start;
       end
    end: input_sig_delay
 

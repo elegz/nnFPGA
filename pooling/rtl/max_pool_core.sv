@@ -13,8 +13,10 @@ module max_pool_core # (
 ) (
    input    wire                                                     clk,
    input    wire                                                     reset_n,
+   input    wire                                                     fin_start,
    input    wire                                                     din_vld,
    input    wire signed [WIN_SIZE-1:0][WIN_SIZE-1:0][DATA_WIDTH-1:0] din,
+   output   wire                                                     fout_start,
    output   wire                                                     dout_vld,
    output   wire signed                             [DATA_WIDTH-1:0] dout
 );
@@ -24,7 +26,8 @@ module max_pool_core # (
    localparam VAR_NUM   = WIN_SIZE * WIN_SIZE;
 
    wire  signed [DATA_WIDTH-1:0] max;
-   reg          [ STAGE_NUM-1:0] dout_vld_z;
+   reg          [ STAGE_NUM-1:0] win_vld_z;
+   reg          [ STAGE_NUM-1:0] fin_start_z;
 
    //defining number of operations for each stage
    genvar g;
@@ -37,12 +40,13 @@ module max_pool_core # (
    endgenerate
 
    assign max           = stage[STAGE_NUM-1].stage_var;
-   assign dout_vld      = dout_vld_z[STAGE_NUM-1];
+   assign dout_vld      = win_vld_z[STAGE_NUM-1];
+   assign fout_start    = fin_start_z[STAGE_NUM-1];
    assign dout          = max;
 
    always_ff @(posedge clk or negedge reset_n) begin: max_pool_core_pipeline
       if (!reset_n) begin
-         dout_vld_z <= '0;
+         {win_vld_z, fin_start_z} <= '0;
          for (int i = 0; i < STAGE_NUM; i++) begin
             stage[i].stage_var <= '0; 
          end
@@ -64,8 +68,11 @@ module max_pool_core # (
          end
 
          //dout_vld delay line
-         dout_vld_z[STAGE_NUM-1:1]   <= dout_vld_z[STAGE_NUM-2:0];
-         dout_vld_z[0]               <= win_vld;
+         win_vld_z[STAGE_NUM-1:1]   <= win_vld_z[STAGE_NUM-2:0];
+         win_vld_z[0]               <= win_vld;
+
+         fin_start_z[STAGE_NUM-1:1]   <= fin_start_z[STAGE_NUM-2:0];
+         fin_start_z[0]               <= fin_start;
       end
    end: max_pool_core_pipeline
 endmodule: max_pool_core

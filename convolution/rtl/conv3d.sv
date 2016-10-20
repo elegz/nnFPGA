@@ -22,9 +22,10 @@ module conv3d import functions_pkg::clog2; # (
 
    input    wire                                      clk,
    input    wire                                      reset_n,
-   input    wire                                      frame_start,
+   input    wire                                      fin_start,
    input    wire                                      din_vld,
    input    wire [ CHANNELS_IN-1:0][ DIN_WIDTH-1:0]   din,
+   output   wire                                      fout_start,
    output   wire                                      dout_vld,
    output   wire [CHANNELS_OUT-1:0][DOUT_WIDTH-1:0]   dout
 );
@@ -33,11 +34,14 @@ module conv3d import functions_pkg::clog2; # (
    wire                [WIN_SIZE-1:0][CHANNELS_IN-1:0][DIN_WIDTH-1:0]  din_buf;
    wire                                                                win_vld;
    wire  [WIN_SIZE-1:0][WIN_SIZE-1:0][CHANNELS_IN-1:0][DIN_WIDTH-1:0]  window;
+   wire                                                                win_fout_start;
    wire                                                                conv_dout_vld[CHANNELS_OUT];
+   wire                                                                conv_fout_start[CHANNELS_OUT];
 
    logic [CHANNELS_IN-1:0][WIN_SIZE-1:0][WIN_SIZE-1:0][DIN_WIDTH-1:0]  conv_din;
 
-   assign dout_vld = conv_dout_vld[0];
+   assign dout_vld   = conv_dout_vld[0];
+   assign fout_start = conv_fout_start[0];
 
    always_comb begin: conv_din_forming
       for (int i = 0; i < WIN_SIZE; i++) begin
@@ -61,7 +65,7 @@ module conv3d import functions_pkg::clog2; # (
       .reset_n,
       .frame_h,
       .frame_w,
-      .frame_start,
+      .frame_start      (fin_start),
       .din_vld,
       .din,
       .din_vld_buf,
@@ -81,9 +85,10 @@ module conv3d import functions_pkg::clog2; # (
       .frame_h,
       .frame_w,
       .stride,
-      .frame_start   (frame_start_buf),
+      .fin_start     (frame_start_buf),
       .din_vld       (din_vld_buf),
       .din           (din_buf),
+      .fout_start    (win_fout_start),
       .win_vld,
       .window
    );
@@ -102,8 +107,10 @@ module conv3d import functions_pkg::clog2; # (
             .clk,
             .reset_n,
             .kernel     (kernel[g]),
+            .fin_start  (win_fout_start),
             .din_vld    (win_vld),
             .din        (conv_din),
+            .fout_start (conv_fout_start[g]),
             .dout_vld   (conv_dout_vld[g]),
             .dout       (dout[g])
          );
