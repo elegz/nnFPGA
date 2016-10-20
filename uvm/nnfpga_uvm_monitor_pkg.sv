@@ -8,7 +8,6 @@ package nnfpga_uvm_monitor_pkg;
    import uvm_pkg::*;
    import nnfpga_uvm_transaction_pkg::*;
    import nnfpga_uvm_pkg::*;
-   //import nnfpga_uvm_if_lib::*;
 
    class frm_bus_monitor # (type TRANS_TYPE = frame_transaction, DATA_WIDTH) extends uvm_monitor;
       `uvm_component_param_utils(frm_bus_monitor # (TRANS_TYPE, DATA_WIDTH))

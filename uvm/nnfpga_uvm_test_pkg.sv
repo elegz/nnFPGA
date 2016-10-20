@@ -10,7 +10,6 @@ package nnfpga_uvm_test_pkg;
    import nnfpga_uvm_transaction_pkg::*;
    import nnfpga_uvm_sequence_pkg::*;
    import nnfpga_uvm_sequencer_pkg::*;
-   //import nnfpga_uvm_if_lib::*;
    import nnfpga_uvm_pkg::*;
 
    class nnfpga_uvm_test extends uvm_test;

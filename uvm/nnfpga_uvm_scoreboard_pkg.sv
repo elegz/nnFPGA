@@ -8,7 +8,6 @@ package nnfpga_uvm_scoreboard_pkg;
    import uvm_pkg::*;
    import nnfpga_uvm_pkg::*;
    import nnfpga_uvm_transaction_pkg::*;
-   //import nnfpga_uvm_if_lib::*;
 
    class nnfpga_uvm_scoreboard extends uvm_scoreboard;
       `uvm_component_utils(nnfpga_uvm_scoreboard)

@@ -10,7 +10,6 @@ package nnfpga_uvm_env_pkg;
    import nnfpga_uvm_agent_pkg::*;
    import nnfpga_uvm_scoreboard_pkg::*;
    import nnfpga_uvm_pkg::*;
-   //import nnfpga_uvm_if_lib::*;
 
    class frame_env extends uvm_env;
       `uvm_component_utils(frame_env)

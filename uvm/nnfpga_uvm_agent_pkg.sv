@@ -9,7 +9,6 @@ package nnfpga_uvm_agent_pkg;
    import nnfpga_uvm_transaction_pkg::*;
    import nnfpga_uvm_driver_pkg::*;
    import nnfpga_uvm_monitor_pkg::*;
-   //import nnfpga_uvm_if_lib::*;
    import nnfpga_uvm_pkg::*;
 
    class frame_agent extends uvm_agent;
@@ -33,8 +32,8 @@ package nnfpga_uvm_agent_pkg;
          gm_mon_port    = new(.name("gm_mon_port"), .parent(this));
 
          frm_mon              = frm_bus_monitor # (.TRANS_TYPE(frame_transaction), .DATA_WIDTH(DATA_WIDTH))::type_id::create("frm_mon", this);
-         frm_mon.frame_width  = FRAME_WIDTH;
-         frm_mon.frame_height = FRAME_HEIGHT;
+         frm_mon.frame_width  = FRAME_W;
+         frm_mon.frame_height = FRAME_H;
          gm_mon               = gm_monitor # (.FILE_NAME(GM_FILE))::type_id::create("gm_mon", this);
 
          if(get_is_active() == UVM_ACTIVE) begin
