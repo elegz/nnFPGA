@@ -16,6 +16,7 @@ module win_pad import functions_pkg::clog2; # (
    input    wire                                          [clog2(FRAME_H_MAX-1):0]  frame_h,
    input    wire                                          [clog2(FRAME_W_MAX-1):0]  frame_w,
    input    wire                                          [ clog2(STRIDE_MAX-1):0]  stride,
+   input    wire                                                                    indent,
    input    wire                                                                    fin_start,
    input    wire                                                                    din_vld,
    input    wire                [WIN_SIZE-1:0][CH_NUM-1:0][         DIN_WIDTH-1:0]  din,
@@ -58,9 +59,9 @@ module win_pad import functions_pkg::clog2; # (
          {row_pointer, column_pointer, str_row_ptr, str_col_ptr}  <= '0;
          {top_pad_timer, bot_pad_timer}                           <= '0;
       end else if (frame_start) begin
-         {row_pointer, str_row_ptr}       <= '0;
-         {top_pad_timer, bot_pad_timer}   <= '0;
-         frame_valid                      <= '1;
+         {row_pointer, top_pad_timer, bot_pad_timer}     <= '0;
+         str_row_ptr                                     <= indent;
+         frame_valid                                     <= '1;
       end else begin
          //buffer to support continuous streaming
          if (din_vld) begin
@@ -76,24 +77,18 @@ module win_pad import functions_pkg::clog2; # (
             if (column_pointer == (frame_w - 1)) begin
                column_pointer <= '0;
                row_pointer++;
-               str_col_ptr    <= '0;
+               str_col_ptr    <= indent;
                if (row_pointer == str_row_ptr) begin
                   str_row_ptr += stride;
                end
-            end else begin
-               if (row_pointer == str_row_ptr) begin
-                  if (column_pointer == str_col_ptr) begin
-                     win_vld     <= 1'b1;
-                     str_col_ptr += stride;
-                  end else begin
-                     win_vld <= 1'b0;
-                  end
+            end else begin 
+               if ((row_pointer == str_row_ptr) && (column_pointer == str_col_ptr)) begin
+                  win_vld     <= (column_pointer < (frame_w - indent)) && (row_pointer < (frame_h - indent));
+                  str_col_ptr += stride;
                end else begin
                   win_vld <= 1'b0;
                end
                column_pointer++;
-            end else begin
-               win_vld <= 1'b0;
             end
 
             //top/bottom borders padding with timers

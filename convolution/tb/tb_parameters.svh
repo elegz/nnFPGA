@@ -13,6 +13,7 @@ parameter KERNEL        = {}; //fill
 parameter FRAME_H       = 13;
 parameter FRAME_W       = 13;
 parameter STRIDE        = 1;
+parameter INDENT        = 0;
 parameter GCLK_T        = 4;
 parameter RESET_T       = 100;
 parameter DATA_WIDTH    = 8;

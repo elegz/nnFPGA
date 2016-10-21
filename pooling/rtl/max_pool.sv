@@ -13,6 +13,7 @@ module max_pool import functions_pkg::clog2; # (
    input    wire [clog2(FRAME_H_MAX):0] frame_h,
    input    wire [clog2(FRAME_W_MAX):0] frame_w,
    input    wire [ clog2(STRIDE_MAX):0] stride,
+   input    wire [ clog2(WIN_SIZE/2):0] indent,
 
    input    wire                                clk,
    input    wire                                reset_n,
@@ -79,6 +80,7 @@ module max_pool import functions_pkg::clog2; # (
       .frame_h,
       .frame_w,
       .stride,
+      .indent,
       .fin_start     (frame_start_buf),
       .din_vld       (din_vld_buf),
       .din           (din_buf),
@@ -98,7 +100,7 @@ module max_pool import functions_pkg::clog2; # (
             .reset_n,
             .fin_start  (win_fout_start),
             .din_vld    (win_vld),
-            .fout_start (pool_fout_start[g])
+            .fout_start (pool_fout_start[g]),
             .din        (pool_din[g]),
             .dout_vld   (pool_dout_vld[g]),
             .dout       (dout[g])

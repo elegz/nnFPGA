@@ -23,6 +23,7 @@ module dut (
       .frame_h       (FRAME_H),
       .frame_w       (FRAME_W),
       .stride        (STRIDE),
+      .indent        (INDENT),
       .clk           (main_if.clk),
       .reset_n       (~main_if.reset),
       .fin_start     (slave_frm_bus.frame_start),
